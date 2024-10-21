@@ -106,7 +106,7 @@ const stopAllSounds = () => {
 <style scoped>
 .container {
   padding: 20px;
-  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  background: #A7CBFD;
   min-height: 100vh;
   color: #4f4c4c;
 }
