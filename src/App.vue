@@ -52,10 +52,14 @@ const filteredSounds = computed(() => {
 
 // 切换播放状态的函数
 const togglePlaySound = (id) => {
+  // 如果已经在播放，则停止当前音频
   if (currentPlayingIds.value.includes(id)) {
-    stopPlaying(id); // 如果已经在播放，则停止
+    stopPlaying(id);
   } else {
-    playSound(id); // 否则播放新的音频
+    // 如果正在播放的音频数量小于 5，播放新音频
+    if (currentPlayingIds.value.length < 5) {
+      playSound(id);
+    }
   }
 };
 
@@ -63,6 +67,7 @@ const togglePlaySound = (id) => {
 const playSound = (id) => {
   const src = audioPaths[id]; // 获取本地音频路径
   const audio = new Audio(src);
+  audio.loop = true; // 设置音频循环播放
 
   audio.onerror = () => {
     console.error("音频加载失败，无法播放音频文件: ", src);
@@ -89,9 +94,14 @@ const stopPlaying = (id) => {
     delete audioInstances.value[id]; // 删除实例
   }
 };
+
+// 停止所有声音
+const stopAllSounds = () => {
+  currentPlayingIds.value.forEach(id => stopPlaying(id));
+  currentPlayingIds.value = []; // 清空正在播放的 ID 数组
+};
+
 </script>
-
-
 
 <style scoped>
 .container {
