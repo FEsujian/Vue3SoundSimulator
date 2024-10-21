@@ -23,10 +23,10 @@ export default defineConfig({
         name: "声音模拟器",
         short_name: "声音模拟器",
         description: "一款简单的声音模拟器",
-        theme_color: "#286fe2",
+        theme_color: "#A7CBFD",
         start_url: "./",
         display: "fullscreen",
-        background_color: "#286fe2",
+        background_color: "#A7CBFD",
         registerType: "autoUpdate",
         icons: [
           {
