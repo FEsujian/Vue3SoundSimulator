@@ -1,25 +1,41 @@
 <template>
-  <div class="container">
-    <div class="flex items-center justify-center pb-5 text-4xl font-bold">声音模拟器</div>
-    <!-- Tabs with "All" option -->
-    <div class="tabs-wrapper">
-      <div class="tabs">
-        <button :class="{ active: activeTab === -1 }" @click="activeTab = -1">
-          全部
-        </button>
-        <button v-for="(label, index) in LABELS" :key="label.id" :class="{ active: activeTab === index }"
-          @click="activeTab = index">
-          {{ label.name }}
-        </button>
+  <div class="app">
+    <div class="container">
+      <div class="flex items-center justify-center pb-2">
+        <div class="text-4xl font-bold">声音模拟器</div>
       </div>
-    </div>
+      <div class="flex items-center justify-center pb-5">
+        <label class="flex items-center mr-4">
+          <span class="mr-2 text-xl">循环播放</span>
+          <input type="checkbox" v-model="isLooping" class="w-[20px] h-[20px]" />
+          <span class="toggle-label"></span>
+        </label>
+        <label class="flex items-center">
+          <span class="mr-2 text-xl">播放多个</span>
+          <input type="checkbox" v-model="isMultiple" class="w-[20px] h-[20px]" />
+          <span class="toggle-label"></span>
+        </label>
+      </div>
+      <!-- Tabs with "All" option -->
+      <div class="tabs-wrapper">
+        <div class="tabs">
+          <button :class="{ active: activeTab === -1 }" @click="activeTab = -1">
+            全部
+          </button>
+          <button v-for="(label, index) in LABELS" :key="label.id" :class="{ active: activeTab === index }"
+            @click="activeTab = index">
+            {{ label.name }}
+          </button>
+        </div>
+      </div>
 
-    <!-- Sounds grid -->
-    <div class="sounds-grid">
-      <div v-for="sound in filteredSounds" :key="sound.id" class="sound-item"
-        :class="{ playing: currentPlayingIds.includes(sound.id) }" @click="togglePlaySound(sound.id)">
-        <div class="image">{{ sound.image }}</div>
-        <div class="name">{{ sound.name }}</div>
+      <!-- Sounds grid -->
+      <div class="sounds-grid">
+        <div v-for="sound in filteredSounds" :key="sound.id" class="sound-item"
+          :class="{ playing: currentPlayingIds.includes(sound.id) }" @click="togglePlaySound(sound.id)">
+          <div class="image">{{ sound.image }}</div>
+          <div class="name">{{ sound.name }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -38,6 +54,8 @@ SOUND_DATA.forEach(sound => {
 const activeTab = ref(-1); // 默认 -1 表示 "全部"
 const currentPlayingIds = ref([]); // 当前正在播放的音频 ID 数组
 const audioInstances = ref({}); // 用于保存音频实例
+const isLooping = ref(false); // 循环播放开关
+const isMultiple = ref(false); // 播放多个开关
 
 // 过滤声音，基于选择的标签
 const filteredSounds = computed(() => {
@@ -56,8 +74,12 @@ const togglePlaySound = (id) => {
   if (currentPlayingIds.value.includes(id)) {
     stopPlaying(id);
   } else {
-    // 如果正在播放的音频数量小于 5，播放新音频
-    if (currentPlayingIds.value.length < 5) {
+    if (isMultiple.value) {
+      // 如果允许多个播放，播放新音频
+      playSound(id);
+    } else {
+      // 如果不允许多个播放，则停止所有并播放新音频
+      stopAllSounds();
       playSound(id);
     }
   }
@@ -67,7 +89,7 @@ const togglePlaySound = (id) => {
 const playSound = (id) => {
   const src = audioPaths[id]; // 获取本地音频路径
   const audio = new Audio(src);
-  audio.loop = true; // 设置音频循环播放
+  audio.loop = isLooping.value; // 根据循环播放开关设置
 
   audio.onerror = () => {
     console.error("音频加载失败，无法播放音频文件: ", src);
@@ -82,7 +104,9 @@ const playSound = (id) => {
 
   // 在音频结束时移除 ID
   audio.onended = () => {
-    stopPlaying(id);
+    if (!isLooping.value) {
+      stopPlaying(id); // 如果不是循环播放，则停止
+    }
   };
 };
 
@@ -104,11 +128,20 @@ const stopAllSounds = () => {
 </script>
 
 <style scoped>
-.container {
-  padding: 20px;
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background: #A7CBFD;
+}
+
+.container {
+  width: 100%;
+  padding: 20px;
+
   min-height: 100vh;
   color: #4f4c4c;
+
 }
 
 .tabs-wrapper {
