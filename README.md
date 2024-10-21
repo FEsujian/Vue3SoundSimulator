@@ -5,7 +5,7 @@
 
 ## 项目预览
 
-[在线预览](https://sound.fesujian.com)
+<a target="\_blank" href="https://sound.fesujian.com">在线预览</a>
 
 ## 项目截图
 
